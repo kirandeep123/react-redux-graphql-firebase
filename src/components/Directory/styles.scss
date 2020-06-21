@@ -1,0 +1,17 @@
+.item1{
+    padding:80px;
+    height: 500px;
+    &::after{
+        content:'';
+        position: absolute;
+        left:0;top:0;
+        background:black;
+        z-index:1;
+        height:100%;
+    }
+}
+.wrap{
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+}

@@ -50,7 +50,7 @@ class App extends React.Component {
   return (
     <div className="App">
         <Switch>
-        <Route path="/registeration" render={()=>(
+        <Route path="/registeration" render={()=> currentUser?<Redirect to="/"/> :(
          <MainLayout  currentUser={currentUser}>
             <Registeration/>
           </MainLayout>

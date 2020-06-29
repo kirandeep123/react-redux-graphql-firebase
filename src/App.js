@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./default.scss";
-import { Route, Switch, Redirect } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import MainLayout from "./layouts/MainLayout";
 import HomepageLayout from "./layouts/HomepageLayout";
@@ -9,92 +9,99 @@ import Login from "./pages/Login";
 import { auth, handleUserProfile } from "./firebase/utils";
 import Recovery from "./pages/Recovery";
 
-import {setCurrentUser} from './redux/User/user.actions';
-import {connect} from 'react-redux';
+import { setCurrentUser } from "./redux/User/user.actions";
+import { connect } from "react-redux";
 
+import Dashboard from "./pages/Dashboard";
 
-class App extends React.Component {
- 
-  authListener = null;
+// hoc 
 
-  componentDidMount() {
-    this.authListener = auth.onAuthStateChanged(async userAuth => {
+import WithAuth from './hoc/withAuth';
+const App = props => {
+  const { setCurrentUser, currentUser } = props;
+
+  useEffect(() => {
+    const authListener = auth.onAuthStateChanged(async userAuth => {
       if (userAuth) {
         const userRef = await handleUserProfile(userAuth);
         userRef.onSnapshot(snapShot => {
-          this.props.setCurrentUser({
-              id: snapShot.id,
-              ...snapShot.data()
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data()
           });
         });
       }
 
-      this.props.setCurrentUser(userAuth);
+      setCurrentUser(userAuth);
     });
-  }
-  componentWillUnmount() {
-    this.authListener();
-  }
-  render() {
-    const { currentUser } = this.props;
+    return () => {
+      authListener();
+    };
+  }, []);
 
-    return (
-      <div className="App">
-        <Switch>
-          <Route
-            path="/registeration"
-            render={() =>
-              currentUser ? (
-                <Redirect to="/" />
-              ) : (
-                <MainLayout>
-                  <Registeration />
-                </MainLayout>
-              )
-            }
-          />
-          <Route
-            path="/login"
-            render={() =>
-              currentUser ? (
-                <Redirect to="/" />
-              ) : (
-                <MainLayout>
-                  <Login />
-                </MainLayout>
-              )
-            }
-          />
-          <Route
-            exact
-            path="/"
-            render={() => (
-              <HomepageLayout>
-                <HomePage />
-              </HomepageLayout>
-            )}
-          />
+  return (
+    <div className="App">
+      <Switch>
+        <Route
+          path="/registeration"
+          render={() =>
 
-          <Route
-            path="/recovery"
-            render={() => (
               <MainLayout>
-                <Recovery />
+                <Registeration />
               </MainLayout>
-            )}
-          />
-        </Switch>
-      </div>
-    );
-  }
-}
+            
+          }
+        />
+        <Route
+          path="/login"
+          render={() =>
+          
+              <MainLayout>
+                <Login />
+              </MainLayout>
+            
+          }
+        />
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <HomepageLayout>
+              <HomePage />
+            </HomepageLayout>
+          )}
+        />
 
-const mapStateToProps= ({user})=>({
-  currentUser:user.currentUser
+        <Route
+          path="/recovery"
+          render={() => (
+            <MainLayout>
+              <Recovery />
+            </MainLayout>
+          )}
+        />
+
+        <Route
+          path="/dashboard"
+          render={() => (
+            <WithAuth>
+            <MainLayout>
+              <Dashboard />
+            </MainLayout>
+            </WithAuth>
+          )}
+        />
+      </Switch>
+    </div>
+  );
+};
+
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser
 });
 
-const mapDispatchToProps=(dispatch)=>({
-setCurrentUser:user=>dispatch(setCurrentUser(user))
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
 });
 
-export default connect(mapStateToProps,mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

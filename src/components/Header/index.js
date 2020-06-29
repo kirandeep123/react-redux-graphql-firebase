@@ -24,10 +24,14 @@ const Header = props => {
             )}
             {!currentUser && (
           <ul>
+              <Link style={{ marginLeft: "12px", padding: "12px" }} to="/login">
+              Dashboard
+            </Link>
             <Link to="/registeration">Register</Link>
             <Link style={{ marginLeft: "12px", padding: "12px" }} to="/login">
               LogIn
             </Link>
+          
           </ul>
             )}
         </div>

@@ -1,62 +1,53 @@
-import React from 'react';
+import React,{useState} from 'react';
 import './styles.scss';
 import Button from './../forms/Button';
 import {signInwithGoogle,auth} from './../../firebase/utils';
 import AuthWrapper from './../AuthWrapper';
 import FormInput from '../forms/FormInput';
-import {Link} from 'react-router-dom';
-const initialState={
-    email:'',
-    password:''
-}
-class Signin extends React.Component{
+import {Link,withRouter} from 'react-router-dom';
 
-    constructor(props){
-        super(props);
-        this.state={
-            ...initialState
-        }
-        this.onInputChange = this.onInputChange.bind(this);
+
+const  Signin  = props =>{
+
+    const [email,setEmail]=useState('');
+    const [password,setPassword]=useState('');
+
+    const resetForm=()=>{
+        setEmail('');
+        setPassword('');
     }
-handleSubmit = async e =>{
+    const  handleSubmit = async e =>{
     e.preventDefault();
-    const {email,password}= this.state;
     try{
         await auth.signInWithEmailAndPassword(email,password);
-        this.setState({...initialState})
+        resetForm();
+        props.history.push('./login');
     }
     catch(err){
         // console.log(err);
     }
 
 }
-onInputChange(event){
-    const {name,value}= event.target;
-    this.setState({
-    [name]:value
-})
-}
-render(){
-    const {email,password} = this.state;
+
     return(
       <AuthWrapper headline="login">
-               <div className="formwrap">
-                   <form onSubmit={this.handleSubmit}>
-                       <FormInput
+        <div className="formwrap">
+            <form onSubmit={handleSubmit}>
+                <FormInput
                        type="email"
                        name="email"
                        value={email}
                        placeholder="Email"
-                       handleChange={this.onInputChange}
-                       />
-                       <FormInput
+                       handleChange={e=>setEmail(e.target.value)}
+                />
+                <FormInput
                        type="password"
                        name="password"
                        value={password}
                        placeholder="Password"
-                       handleChange={this.onInputChange}
+                       handleChange={e=>setPassword(e.target.value)}
 
-                       />
+                />
                        <Button type="submit">LogIn</Button>
                        <div className="socialSignin">
                            <div className="row">
@@ -68,11 +59,11 @@ render(){
                                Reset Password
                            </Link>
                        </div>
-                   </form>
-               </div>
-               </AuthWrapper>
+            </form>
+        </div>
+     </AuthWrapper>
          
     )
 }
-}
-export default Signin;
+
+export default withRouter(Signin);
